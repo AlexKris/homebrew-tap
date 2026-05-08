@@ -5,8 +5,7 @@ cask "mihomo-sparkle" do
   sha256 arm:   "b7c01a698f8c6aba6135867fde491133f41e2ace9cd5025e480e9c8b3f89a059",
          intel: "149ae3e81225b52f9998c7731aeb9580f8d1ead080b3cb7b5d824bde3ff6f28b"
 
-  url "https://github.com/xishang0128/sparkle/releases/download/#{version}/sparkle-macos-#{version}-#{arch}.pkg",
-      verified: "github.com/xishang0128/sparkle/"
+  url "https://github.com/xishang0128/sparkle/releases/download/#{version}/sparkle-macos-#{version}-#{arch}.pkg"
   name "Sparkle"
   desc "Another Mihomo GUI (xishang0128 fork)"
   homepage "https://github.com/xishang0128/sparkle"
