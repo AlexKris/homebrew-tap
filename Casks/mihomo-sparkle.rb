@@ -2,8 +2,8 @@ cask "mihomo-sparkle" do
   arch arm: "arm64", intel: "x64"
 
   version ""
-  sha256 arm:   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-         intel: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  sha256 arm:   "a047100191e583e90a884871ffef180350d48eb58fbbefd5a4ade6ca466eb58b",
+         intel: "2e7d5e9dee8aa154f3a3cd88a53c43d4e84b3436e01a9674fa0e2cb8bc94c018"
 
   url "https://github.com/xishang0128/sparkle/releases/download/#{version}/sparkle-macos-#{version}-#{arch}.pkg"
   name "Sparkle"
