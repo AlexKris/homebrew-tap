@@ -17,7 +17,10 @@ jobs:
       - name: Get latest upstream version
         id: up
         run: |
-          V=$(curl -fsSL https://api.github.com/repos/xishang0128/sparkle/releases/latest | jq -r .tag_name)
+          RELEASE=$(curl -fsSL https://api.github.com/repos/xishang0128/sparkle/releases/latest)
+          echo "$RELEASE" > release.json
+
+          V=$(jq -r '.tag_name' release.json)
           echo "version=$V" >> "$GITHUB_OUTPUT"
 
       - name: Get current cask version
@@ -35,10 +38,18 @@ jobs:
         id: sha
         if: steps.up.outputs.version != steps.cur.outputs.version
         run: |
-          V=${{ steps.up.outputs.version }}
-          BASE=https://github.com/xishang0128/sparkle/releases/download/$V
-          ARM=$(curl -fsSL "$BASE/sparkle-macos-$V-arm64.pkg" | sha256sum | awk '{print $1}')
-          X64=$(curl -fsSL "$BASE/sparkle-macos-$V-x64.pkg"   | sha256sum | awk '{print $1}')
+          ARM_URL=$(jq -r '.assets[].browser_download_url | select(test("arm64.*\\.pkg$"))' release.json | head -1)
+          X64_URL=$(jq -r '.assets[].browser_download_url | select(test("(x64|amd64).*\\.pkg$"))' release.json | head -1)
+
+          echo "arm_url=$ARM_URL" >> "$GITHUB_OUTPUT"
+          echo "x64_url=$X64_URL" >> "$GITHUB_OUTPUT"
+
+          test -n "$ARM_URL"
+          test -n "$X64_URL"
+
+          ARM=$(curl -fsSL "$ARM_URL" | sha256sum | awk '{print $1}')
+          X64=$(curl -fsSL "$X64_URL" | sha256sum | awk '{print $1}')
+
           echo "arm=$ARM" >> "$GITHUB_OUTPUT"
           echo "x64=$X64" >> "$GITHUB_OUTPUT"
 
@@ -52,7 +63,7 @@ jobs:
         run: |
           F=Casks/mihomo-sparkle.rb
           sed -i -E "s|version \"$OLD\"|version \"$NEW\"|" "$F"
-          sed -i -E "s|(arm:[[:space:]]+)\"[a-f0-9]{64}\"|\1\"$ARM\"|"   "$F"
+          sed -i -E "s|(arm:[[:space:]]+)\"[a-f0-9]{64}\"|\1\"$ARM\"|" "$F"
           sed -i -E "s|(intel:[[:space:]]+)\"[a-f0-9]{64}\"|\1\"$X64\"|" "$F"
           echo "--- diff ---"
           git diff -- "$F"
@@ -62,8 +73,9 @@ jobs:
         env:
           NEW: ${{ steps.up.outputs.version }}
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add Casks/mihomo-sparkle.rb
 
           if git diff --cached --quiet; then
