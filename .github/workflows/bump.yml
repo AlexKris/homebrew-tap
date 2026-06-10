@@ -16,8 +16,14 @@ jobs:
 
       - name: Get latest upstream version
         id: up
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          RELEASE=$(curl -fsSL https://api.github.com/repos/xishang0128/sparkle/releases/latest)
+          RELEASE=$(curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/xishang0128/sparkle/releases/latest)
+
           echo "$RELEASE" > release.json
 
           V=$(jq -r '.tag_name' release.json)
